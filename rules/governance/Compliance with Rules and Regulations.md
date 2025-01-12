@@ -17,7 +17,7 @@ All Ubyx Participants must be compliant with applicable law and regulations.
 
 1. **Compliance with laws and regulations:**
 
-1.1 Each Ubyx Participant must comply with all applicable laws, regulations, and legal requirements, including but not limited to those concerning:
+   1.1 Each Ubyx Participant must comply with all applicable laws, regulations, and legal requirements, including but not limited to those concerning:
    - Banking and financial institutions.
    - Payment systems and money transmission.
    - Virtual Asset Service Provision.
@@ -26,11 +26,11 @@ All Ubyx Participants must be compliant with applicable law and regulations.
    - Sanctions 
    - Privacy, security, consumer protection, and intellectual property rights (e.g., trademarks and copyrights).
 
-1.2 Compliance is required in every country in which the Ubyx Participant operates.
+   1.2 Compliance is required in every country in which the Ubyx Participant operates.
 
 2. **Responsibility for Affiliates and Agents:**
 
-2.1 Each Ubyx Participant is responsible for ensuring that its:
+   2.1 Each Ubyx Participant is responsible for ensuring that its:
    - Affiliates.
    - Subsidiaries.
    - Parent companies.
@@ -38,17 +38,17 @@ All Ubyx Participants must be compliant with applicable law and regulations.
    - Merchants.
    - Other appointed agents participating in the Ubyx Network.
 
-...fully comply with all applicable laws, regulations, and legal requirements in all jurisdictions in which they operate.
+   ...fully comply with all applicable laws, regulations, and legal requirements in all jurisdictions in which they operate.
 
 3. **Legality of Transactions:**
 
-3.1 All transactions processed through the Ubyx Network must be legal in:
+   3.1 All transactions processed through the Ubyx Network must be legal in:
    - The jurisdiction of the Issuer.
    - The jurisdiction of the Receiving Institution.
 
 4. **Conflict of Rules:**
 
-4.1 In the event of a conflict between Ubyx Rules and applicable laws or regulations, the laws and regulations take precedence. Ubyx Participants must act in accordance with the applicable legal requirements and notify Ubyx Inc. of any such conflicts.
+   4.1 In the event of a conflict between Ubyx Rules and applicable laws or regulations, the laws and regulations take precedence. Ubyx Participants must act    in accordance with the applicable legal requirements and notify Ubyx Inc. of any such conflicts.
 
 ### Non-Compliance Penalties
 Non-compliance with these obligations may result in:
