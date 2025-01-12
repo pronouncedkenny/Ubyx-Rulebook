@@ -3,40 +3,46 @@ name: Assign Rule IDs and Update Metadata
 on:
   push:
     paths:
-      - "rules/**/*.md"
+      - "rules/**/*.md"  # Target only .md files in rules/ and subdirectories
 
 jobs:
   update-metadata:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Debug File Detection
+      - name: Process Files
         run: |
           echo "Files changed in this commit:"
-          git diff --name-only HEAD~1 HEAD
+          if git rev-parse HEAD~1 >/dev/null 2>&1; then
+            files=$(git diff --name-only HEAD~1 HEAD | grep "rules/.*.md")
+          else
+            files=$(git diff --name-only HEAD | grep "rules/.*.md")
+          fi
 
-      - name: Assign Rule IDs and Add Last Modified Date
-        run: |
-          for file in $(git diff --diff-filter=A --name-only HEAD~1 HEAD | grep "rules/.*.md"); do
+          echo "$files"
+
+          for file in $files; do
             echo "Processing file: $file"
 
-            id=$(uuidgen | cut -c 1-8)
-            last_modified=$(git log -1 --format="%ad" --date=short -- $file)
-
             # Add Rule ID if not present
-            if ! grep -q "Rule ID:" $file; then
-              sed -i "1i ---\nRule ID: UBYX-${id}\nLast Modified: ${last_modified}\n---" $file
-              echo "Added Rule ID and Last Modified to $file"
+            if ! grep -q "Rule ID:" "$file"; then
+              id=$(uuidgen | cut -c 1-8)
+              sed -i "1i ---\nRule ID: UBYX-${id}\nLast Modified: $(date +'%Y-%m-%d')\n---" "$file"
+              echo "Added Rule ID: UBYX-${id} to $file"
             else
-              echo "Rule ID already exists in $file"
+              # Update Last Modified date
+              last_modified=$(date +'%Y-%m-%d')
+              sed -i "s/^Last Modified:.*/Last Modified: ${last_modified}/" "$file"
+              echo "Updated Last Modified date to $file"
             fi
-
-            git add $file
           done
 
       - name: Commit Changes
         run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
           git commit -m "Auto-update metadata for rule files" || echo "No changes to commit"
-          git push origin HEAD:main
+          git push
