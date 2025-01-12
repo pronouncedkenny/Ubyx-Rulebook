@@ -16,9 +16,9 @@ Establishes the right of Ubyx Inc. to modify Ubyx Rules.
 ### Obligations
 1. **Right to Modify:**
 
-1.1. Ubyx Inc. has the right to add, modify, delete or otherwise vary the Ubyx Rulebook at any time at its sole discretion.
+  1.1. Ubyx Inc. has the right to add, modify, delete or otherwise vary the Ubyx Rulebook at any time at its sole discretion.
 
-1.2. Ubyx Inc. has the right to accept or reject amendments to the Ubyx Rulebook receiving from Ubyx Participants or Third Parties at its sole discretion.
+  1.2. Ubyx Inc. has the right to accept or reject amendments to the Ubyx Rulebook receiving from Ubyx Participants or Third Parties at its sole discretion.
 
 ### Non-Compliance Penalties
 Non-compliance with these obligations may result in:
