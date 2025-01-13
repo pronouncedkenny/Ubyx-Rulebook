@@ -1,13 +1,13 @@
 ---
-**Rule ID:** UBYX-00009  
-**Title:** Notification of Changes to Regulatory Status  
-**Category:** Issuer Obligations  
-**Status:** Draft  
-**Version:** 1.0  
-**Created:** 2025-01-13  
-**Last Modified:** 2025-01-13  
-**Author:** Ubyx Inc.  
-**Description:** Issuers are required to promptly notify Ubyx of any changes to their regulatory status, including but not limited to licensing, compliance, or operational restrictions imposed by regulatory authorities.
+Rule ID: UBYX-00009  
+Title: Notification of Changes to Regulatory Status  
+Category: Issuer Obligations  
+Status: Draft  
+Version: 1.0  
+Created: 2025-01-13  
+Last Modified: 2025-01-13  
+Author: Ubyx Inc.  
+Description: Issuers are required to promptly notify Ubyx of any changes to their regulatory status, including but not limited to licensing, compliance, or operational restrictions imposed by regulatory authorities.
 ---
 
 ### Rule Overview
