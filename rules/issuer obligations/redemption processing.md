@@ -33,4 +33,3 @@ Non-compliance with these obligations may result in:
 
 ---
 
-Let me know if you’d like to move on to the next rule!
