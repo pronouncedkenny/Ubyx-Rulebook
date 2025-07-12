@@ -1,1 +1,5 @@
+Receiving Institution FX Operations refer to the process whereby a Receiving Institution, upon receiving fiat settlement funds corresponding to a stablecoin redemption in a foreign currency, performs foreign exchange conversion on behalf of its client and credits the client’s account in the local or preferred currency in accordance with the institution’s own terms and conditions.
 
+These operations are conducted entirely at the discretion of the Receiving Institution and are governed by the bilateral agreement between the institution and its client. The Ubyx system facilitates delivery of fiat funds to the Receiving Institution in the currency of the redeemed stablecoin; any subsequent currency conversion and account crediting are managed outside the scope of the Ubyx clearing process.
+
+Receiving Institutions may apply their own FX rates, margins, fees, and execution timing, provided such practices are transparent to the client and comply with applicable legal and regulatory standards. Ubyx does not impose or prescribe the terms of FX operations, and assumes no liability or oversight responsibility for FX execution performed by Receiving Institutions.
