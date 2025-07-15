@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <title>Ubyx Stablecoin Clearing‑House Rulebook</title>
   <style>
+    /* ------- base typography ------- */
     body{
       font: 400 16px/1.6 "Helvetica Neue", Arial, sans-serif;
       max-width: 820px;
@@ -15,8 +16,40 @@
     h1{font-size:2rem}
     h2{font-size:1.6rem}
     h3{font-size:1.4rem}
+
+    /* ------- page breaks for PDF ------- */
     .page-break{page-break-after:always;height:0}
-    @media print{a[href]:after{content:""}}
+
+    /* ------- GitHub‑like table styling ------- */
+    table{
+      width:100%;
+      border-collapse:collapse;
+      margin:1.6rem 0;
+    }
+    table tr{
+      background-color:#fff;
+      border-top:1px solid #dfe2e5;
+    }
+    table tr:nth-child(2n){
+      background-color:#f6f8fa;
+    }
+    th,td{
+      padding:0.6rem 1rem;
+      border:1px solid #dfe2e5;
+      text-align:left;
+    }
+
+    /* ------- dark‑mode overrides ------- */
+    @media (prefers-color-scheme: dark){
+      body{color:#c9d1d9;background:#0d1117;}
+      table tr{background-color:#161b22;border-color:#30363d;}
+      table tr:nth-child(2n){background-color:#1c2128;}
+      th,td{border-color:#30363d;}
+    }
+
+    @media print{
+      a[href]:after{content:""}          /* suppress link URLs in print */
+    }
   </style>
 </head>
 <body>
