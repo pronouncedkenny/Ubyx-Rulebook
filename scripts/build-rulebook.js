@@ -1,38 +1,48 @@
+// ─────────────────────────────────────────────────────────────────────────────
 // scripts/build-rulebook.js
-// -------------------------
+// Builds one clean Markdown file (dist/rulebook.md) from every *.md in the repo
+// and flattens any “bullet‑inside‑numbered” lists so Notion’s API accepts it.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { promises as fs } from 'fs';
-import path from 'path';
 import { globSync } from 'glob';
 
-// ----- helper: sort 001‑something before 002‑something, then A‑Z -----
-const sortByNumberThenAlpha = (a, b) => {
+// ─── helper: numeric folders first (001 < 010) then A‑Z ──────────────────────
+function sortByNumberThenAlpha(a, b) {
   const numA = a.match(/^\d+/)?.[0] ?? '';
   const numB = b.match(/^\d+/)?.[0] ?? '';
   if (numA && numB && numA !== numB) return Number(numA) - Number(numB);
   return a.localeCompare(b);
-};
+}
 
-// ----- gather every markdown file in repo, but ignore .github etc -----
+// ─── helper: flatten bullet lists nested inside numbered lists ───────────────
+// Notion blocks can’t have a bulleted_list_item as a child of numbered_list_item.
+// We replace the inner “- ” with an en‑dash “– ” so it becomes a plain paragraph.
+function flattenMixedLists(markdown) {
+  return markdown.replace(
+    /^(\s*\d+\.\s[^\n]+)\n(\s{2,})-\s/gm,
+    (_, parent, indent) => `${parent}\n${indent}– `
+  );
+}
+
+// ─── gather every markdown file (skip dist/, node_modules/, .github/) ────────
 const mdFiles = globSync('**/*.md', {
   ignore: ['node_modules/**', 'dist/**', '.github/**', '**/README.md'],
-});
+}).sort(sortByNumberThenAlpha);
 
-mdFiles.sort(sortByNumberThenAlpha);
-
+// ─── assemble ordered chunks ─────────────────────────────────────────────────
 const chunks = [];
 
 for (const file of mdFiles) {
   const rel = file.replace(/\\/g, '/');
   const parts = rel.split('/');
 
-  // folder header (e.g. 002 – Definitions)
   if (parts.length === 2) {
+    // e.g. 002-Definitions/Term-A.md
     const folder = parts[0];
-    if (!chunks.some(c => c.startsWith(`# ${folder}`))) {
-      const clean = folder.replace('-', ' – ');
-      chunks.push(`\n# ${clean}\n`);
+    if (!chunks.some(c => c.startsWith(`# ${folder.replace('-', ' – ')}`))) {
+      chunks.push(`\n# ${folder.replace('-', ' – ')}\n`);
     }
-    // sub‑header for the file
     const sub = parts[1].replace('.md', '').replace('-', ' – ');
     chunks.push(`\n## ${sub}\n`);
   } else {
@@ -45,8 +55,7 @@ for (const file of mdFiles) {
   chunks.push(text.trim());
 }
 
-// ----- prepend title + intro + timestamp -----
-// ----- prepend title + intro + timestamp -----
+// ─── front‑matter header + timestamp ─────────────────────────────────────────
 const iso = new Date().toISOString().slice(0, 19) + 'Z';
 const header = `---
 title: Ubyx Rulebook – Unofficial Living Build
@@ -57,8 +66,8 @@ An unofficial, perhaps more easily digestible, compilation of the Ubyx Rulebook,
 
 _Last synced: ${iso}_`;
 
-
-const out = `${header}\n${chunks.join('\n\n')}`;
+// ─── flatten problematic lists and write the file ────────────────────────────
+const out = flattenMixedLists(`${header}\n${chunks.join('\n\n')}`);
 
 await fs.mkdir('dist', { recursive: true });
 await fs.writeFile('dist/rulebook.md', out);
