@@ -5,30 +5,46 @@ on:
     branches: [ rulebook-sync ]
 
 jobs:
-  publish:
+  # ── 1 ▸ build the part files and export their paths ─────────────────────────
+  build:
     runs-on: ubuntu-latest
-
+    outputs:
+      parts: ${{ steps.collect.outputs.parts }}
+      first: ${{ steps.collect.outputs.first }}
     steps:
-      # 1 ▸ pull the repo
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        with: { fetch-depth: 0 }
 
-      # 2 ▸ install Node and build the single markdown file
       - uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-      - name: Build rulebook.md
+        with: { node-version: '18' }
+
+      - name: Build rulebook part files
         run: |
           npm install
           node scripts/build-rulebook.js
 
-      # 3 ▸ push that markdown into Notion (no synced‑block wrapper)
-      - name: Push Markdown to Notion
+      - id: collect
+        run: |
+          FILES=$(ls dist/parts/*.md | sort)
+          echo "parts=$(echo "$FILES" | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          echo "first=$(echo "$FILES" | head -n 1)" >> $GITHUB_OUTPUT
+        shell: bash
+
+  # ── 2 ▸ upload each part (first call deletes old content) ──────────────────
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        file: ${{ fromJson(needs.build.outputs.parts) }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - name: Upload part to Notion
         uses: tryfabric/markdown-to-notion@main
         with:
-          file: dist/rulebook.md
+          file: ${{ matrix.file }}
           notion_token: ${{ secrets.NOTION_TOKEN }}
           notion_id:    ${{ secrets.NOTION_PAGE_ID }}
-          delete_existing: true
-          sync: false            # ← disables the 100‑child limit wrapper
+          delete_existing: ${{ matrix.file == needs.build.outputs.first }}
