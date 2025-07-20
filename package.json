@@ -1,0 +1,8 @@
+{
+  "name": "ubyx-rulebook-build",
+  "type": "module",
+  "version": "1.0.0",
+  "dependencies": {
+    "glob": "^10.2.1"
+  }
+}
