@@ -1,0 +1,1 @@
+This directory contains rules related to the Ubyx technical platform.
