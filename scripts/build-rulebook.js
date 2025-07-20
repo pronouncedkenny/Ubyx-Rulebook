@@ -2,7 +2,7 @@
 // -------------------------
 import { promises as fs } from 'fs';
 import path from 'path';
-import glob from 'glob';
+import { globSync } from 'glob';
 
 // ----- helper: sort 001‑something before 002‑something, then A‑Z -----
 const sortByNumberThenAlpha = (a, b) => {
@@ -13,7 +13,7 @@ const sortByNumberThenAlpha = (a, b) => {
 };
 
 // ----- gather every markdown file in repo, but ignore .github etc -----
-const mdFiles = glob.sync('**/*.md', {
+const mdFiles = globSync('**/*.md', {
   ignore: ['node_modules/**', 'dist/**', '.github/**', '**/README.md'],
 });
 
