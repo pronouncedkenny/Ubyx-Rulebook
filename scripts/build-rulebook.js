@@ -1,34 +1,34 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // scripts/build-rulebook.js
-// Builds ONE file  dist/rulebook.md  and flattens bullet‑inside‑numbered lists
-// so Notion’s API accepts it.  No splitting needed.
+// Builds the rulebook as multiple Markdown “part” files (each < 100 blocks)
+// so Notion’s API never hits the child‑limit on synced blocks.
 // ─────────────────────────────────────────────────────────────────────────────
 import { promises as fs } from 'fs';
 import { globSync } from 'glob';
 
-// helper: numeric‑then‑alpha sort
+// ── sort helper ──────────────────────────────────────────────────────────────
 const sortByNumberThenAlpha = (a, b) => {
-  const numA = a.match(/^\d+/)?.[0] ?? '';
-  const numB = b.match(/^\d+/)?.[0] ?? '';
-  if (numA && numB && numA !== numB) return Number(numA) - Number(numB);
+  const na = a.match(/^\d+/)?.[0] ?? '';
+  const nb = b.match(/^\d+/)?.[0] ?? '';
+  if (na && nb && na !== nb) return Number(na) - Number(nb);
   return a.localeCompare(b);
 };
 
-// flatten bullet‑inside‑numbered lists (Notion validation)
+// ── flatten bullet‑inside‑numbered lists (Notion disallows that nesting) ────
 const flattenMixedLists = md =>
   md.replace(
     /^(\s*\d+\.\s[^\n]+)\n(\s{2,})-\s/gm,
     (_, p, ind) => `${p}\n${ind}– `
   );
 
-// gather & order all .md files
-const mdFiles = globSync('**/*.md', {
+// ── gather & order repo Markdown files ───────────────────────────────────────
+const files = globSync('**/*.md', {
   ignore: ['node_modules/**', 'dist/**', '.github/**', '**/README.md'],
 }).sort(sortByNumberThenAlpha);
 
-// build the combined markdown
+// ── assemble one big Markdown string first ───────────────────────────────────
 const chunks = [];
-for (const file of mdFiles) {
+for (const file of files) {
   const rel = file.replace(/\\/g, '/');
   const parts = rel.split('/');
 
@@ -46,7 +46,7 @@ for (const file of mdFiles) {
   chunks.push((await fs.readFile(file, 'utf8')).trim());
 }
 
-// front‑matter header + timestamp
+// ── front‑matter header with timestamp ───────────────────────────────────────
 const iso = new Date().toISOString().slice(0, 19) + 'Z';
 const header = `---
 title: Ubyx Rulebook – Unofficial Living Build
@@ -57,9 +57,31 @@ An unofficial, perhaps more easily digestible, compilation of the Ubyx Rulebook,
 
 _Last synced: ${iso}_`;
 
-const out = flattenMixedLists(`${header}\n${chunks.join('\n\n')}`);
+const fullText = flattenMixedLists(`${header}\n${chunks.join('\n\n')}`);
 
-// write the file
-await fs.mkdir('dist', { recursive: true });
-await fs.writeFile('dist/rulebook.md', out);
-console.log('✅  dist/rulebook.md ready');
+// ── split into parts ≈ 80 blank lines each (< 100 Notion blocks) ─────────────
+const lines = fullText.split('\n');
+const parts = [];
+let buf = [];
+let blanks = 0;
+
+for (const line of lines) {
+  if (line.trim() === '') blanks++;
+  if (blanks > 80) {
+    parts.push(buf.join('\n'));
+    buf = [];
+    blanks = 0;
+  }
+  buf.push(line);
+}
+if (buf.length) parts.push(buf.join('\n'));
+
+// ── write the part files ─────────────────────────────────────────────────────
+await fs.rm('dist', { recursive: true, force: true });
+await fs.mkdir('dist/parts', { recursive: true });
+
+await Promise.all(
+  parts.map((txt, i) => fs.writeFile(`dist/parts/part-${i + 1}.md`, txt))
+);
+
+console.log(`✅  Wrote ${parts.length} part file(s) to dist/parts/`);
