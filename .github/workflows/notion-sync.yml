@@ -23,7 +23,7 @@ jobs:
           npm install                 # installs 'glob' & writes package‑lock.json
           node scripts/build-rulebook.js
 
-      # 3 ▸ push that markdown into Notion  ← THIS is the part that needs perfect spacing
+      # 3 ▸ push that markdown into Notion 
       - name: Push Markdown to Notion
         uses: tryfabric/markdown-to-notion@main
         with:
