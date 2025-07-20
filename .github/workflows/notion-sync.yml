@@ -19,7 +19,7 @@ jobs:
         with:
           node-version: '18'
       - run: |
-          npm ci                   # installs glob from package.json
+          npm install                   # installs glob from package.json
           node scripts/build-rulebook.js
 
       # 3. push that markdown into Notion
