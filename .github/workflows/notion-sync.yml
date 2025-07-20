@@ -24,9 +24,13 @@ jobs:
 
       # 3. push that markdown into Notion
       - name: Push Markdown to Notion
-        uses: JoshStern/push-md-to-notion@v0.3.0
+        uses: tryfabric/markdown-to-notion@main
         with:
-          notion-token: ${{ secrets.NOTION_TOKEN }}
+          file: dist/rulebook.md
+          notion_token: ${{ secrets.NOTION_TOKEN }}
+          notion_id:    ${{ secrets.NOTION_PAGE_ID }}
+          delete_existing: true
+
 
 
 
