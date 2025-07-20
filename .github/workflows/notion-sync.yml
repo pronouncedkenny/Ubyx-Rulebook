@@ -9,25 +9,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1 ▸ pull the repo
+      # 1 ▸ check out the repository
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # 2 ▸ install Node deps & build dist/rulebook.md
+      # 2 ▸ install Node deps and build the Markdown part files
       - uses: actions/setup-node@v4
         with:
           node-version: '18'
-      - name: Build rulebook.md
+      - name: Build rulebook part files
         run: |
-          npm install                 # installs 'glob' & writes package‑lock.json
+          npm install
           node scripts/build-rulebook.js
 
-      # 3 ▸ push that markdown into Notion 
-      - name: Push Markdown to Notion
+      # 3 ▸ collect the generated dist/parts/*.md file paths
+      - name: Find part files
+        id: parts
+        run: |
+          FILES=$(ls dist/parts/*.md | sort | jq -R -s -c 'split("\n")[:-1]')
+          echo "files=$FILES" >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      # 4 ▸ push each part to Notion (first call deletes previous sync)
+      - name: Upload parts to Notion
         uses: tryfabric/markdown-to-notion@main
+        strategy:
+          matrix:
+            file: ${{ fromJson(steps.parts.outputs.files) }}
         with:
-          file: dist/rulebook.md
+          file: ${{ matrix.file }}
           notion_token: ${{ secrets.NOTION_TOKEN }}
           notion_id:    ${{ secrets.NOTION_PAGE_ID }}
-          delete_existing: true
+          delete_existing: ${{ matrix.file == fromJson(steps.parts.outputs.files)[0] }}
