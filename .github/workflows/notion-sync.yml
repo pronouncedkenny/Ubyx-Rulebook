@@ -5,59 +5,23 @@ on:
     branches: [ rulebook-sync ]
 
 jobs:
-  # ────────────────────────────────────────────────────────────────────────────
-  # 1 ▸ Build the part files and upload them as an artifact
-  # ────────────────────────────────────────────────────────────────────────────
-  build:
+  publish:
     runs-on: ubuntu-latest
-    outputs:
-      parts: ${{ steps.collect.outputs.parts }}
-      first: ${{ steps.collect.outputs.first }}
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
-        with:
-          node-version: '18'
+        with: { node-version: '18' }
 
-      - name: Build rulebook part files
+      - name: Build rulebook.md
         run: |
-          npm install
+          npm install glob
           node scripts/build-rulebook.js
 
-      - id: collect
-        run: |
-          FILES=$(ls dist/parts/*.md | sort | xargs -n1 basename)
-          echo "parts=$(echo "$FILES" | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
-          echo "first=$(echo "$FILES" | head -n1)" >> $GITHUB_OUTPUT
-        shell: bash
-
-      - name: Upload parts artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: rulebook_parts
-          path: dist/parts/*.md
-
-  # ────────────────────────────────────────────────────────────────────────────
-  # 2 ▸ Download the artifact and push each part to Notion
-  # ────────────────────────────────────────────────────────────────────────────
-  publish:
-    needs: build
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        file: ${{ fromJson(needs.build.outputs.parts) }}
-    steps:
-      - name: Download parts
-        uses: actions/download-artifact@v4
-        with:
-          name: rulebook_parts
-          path: dist/parts
-
-      - name: Upload part to Notion
+      - name: Push Markdown to Notion
         uses: tryfabric/markdown-to-notion@main
         with:
-          file: dist/parts/${{ matrix.file }}
+          file: dist/rulebook.md
           notion_token: ${{ secrets.NOTION_TOKEN }}
           notion_id:    ${{ secrets.NOTION_PAGE_ID }}
-          delete_existing: ${{ matrix.file == needs.build.outputs.first }}
+          delete_existing: true
+          chunk_size: 50          # stream blocks in batches (well under 100)
