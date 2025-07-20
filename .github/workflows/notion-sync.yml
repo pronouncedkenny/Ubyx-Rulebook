@@ -30,5 +30,4 @@ jobs:
           file: dist/rulebook.md
           notion_token: ${{ secrets.NOTION_TOKEN }}
           notion_id:    ${{ secrets.NOTION_PAGE_ID }}
-          delete_existing: true        # wipe previous synced block before writing
-          debug: true                  # optional: see verbose logs in Actions
+          delete_existing: true
