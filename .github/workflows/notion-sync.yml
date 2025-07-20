@@ -23,10 +23,12 @@ jobs:
           node scripts/build-rulebook.js
 
       # 3. push that markdown into Notion
-      -   - name: Push Markdown to Notion
-    uses: JoshStern/push-md-to-notion@v0.3.0
-    with:
-      notion-token:   ${{ secrets.NOTION_TOKEN }}
-      notion-page-id: ${{ secrets.NOTION_PAGE_ID }}
-      file-path:      dist/rulebook.md
+      - name: Push Markdown to Notion
+  uses: tryfabric/markdown-to-notion@main
+  with:
+    file: dist/rulebook.md
+    notion_token: ${{ secrets.NOTION_TOKEN }}   # ← MUST be present
+    notion_id:    ${{ secrets.NOTION_PAGE_ID }} # ← MUST be present
+    delete_existing: true
+
 
