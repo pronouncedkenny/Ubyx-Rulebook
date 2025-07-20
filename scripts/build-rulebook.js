@@ -46,12 +46,17 @@ for (const file of mdFiles) {
 }
 
 // ----- prepend title + intro + timestamp -----
+// ----- prepend title + intro + timestamp -----
 const iso = new Date().toISOString().slice(0, 19) + 'Z';
-const header = `# Ubyx Rulebook – Unofficial Living Build
+const header = `---
+title: Ubyx Rulebook – Unofficial Living Build
+notion_page: https://www.notion.so/2360fffa3b398045958ad82bd626c4a8
+---
 
 An unofficial, perhaps more easily digestible, compilation of the Ubyx Rulebook, synced with each new commit (hopefully).
 
 _Last synced: ${iso}_`;
+
 
 const out = `${header}\n${chunks.join('\n\n')}`;
 
