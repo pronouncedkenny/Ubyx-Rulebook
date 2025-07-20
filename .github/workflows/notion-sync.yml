@@ -2,36 +2,33 @@ name: Sync Rulebook to Notion
 
 on:
   push:
-    branches: [ rulebook-sync ]
+    branches: [ rulebook-sync ]   # run on every commit to this branch
 
 jobs:
   publish:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. check out your repo
+      # 1 ▸ pull the repo
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0           # get full history (optional)
+          fetch-depth: 0
 
-      # 2. set up Node and build the markdown file
+      # 2 ▸ install Node deps & build dist/rulebook.md
       - uses: actions/setup-node@v4
         with:
           node-version: '18'
-      - run: |
-          npm install                   # installs glob from package.json
+      - name: Build rulebook.md
+        run: |
+          npm install                 # installs 'glob' & writes package‑lock.json
           node scripts/build-rulebook.js
 
-      # 3. push that markdown into Notion
+      # 3 ▸ push that markdown into Notion  ← THIS is the part that needs perfect spacing
       - name: Push Markdown to Notion
         uses: tryfabric/markdown-to-notion@main
         with:
           file: dist/rulebook.md
           notion_token: ${{ secrets.NOTION_TOKEN }}
           notion_id:    ${{ secrets.NOTION_PAGE_ID }}
-          delete_existing: true
-
-
-
-
-
+          delete_existing: true        # wipe previous synced block before writing
+          debug: true                  # optional: see verbose logs in Actions
