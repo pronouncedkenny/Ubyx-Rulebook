@@ -24,7 +24,7 @@ jobs:
 
       # 3. push that markdown into Notion
       - name: Push Markdown to Notion
-        uses: tryfabric/markdown-to-notion@v1
+        uses: tryfabric/markdown-to-notion@main
         with:
           file: dist/rulebook.md
           notion_token: ${{ secrets.NOTION_TOKEN }}
