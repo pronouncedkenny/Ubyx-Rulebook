@@ -2,43 +2,33 @@ name: Sync Rulebook to Notion
 
 on:
   push:
-    branches: [ rulebook-sync ]   # run on every commit to this branch
+    branches: [ rulebook-sync ]
 
 jobs:
   publish:
     runs-on: ubuntu-latest
 
     steps:
-      # 1 ▸ check out the repository
+      # 1 ▸ pull the repo
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # 2 ▸ install Node deps and build the Markdown part files
+      # 2 ▸ install Node and build the single markdown file
       - uses: actions/setup-node@v4
         with:
           node-version: '18'
-      - name: Build rulebook part files
+      - name: Build rulebook.md
         run: |
           npm install
           node scripts/build-rulebook.js
 
-      # 3 ▸ collect the generated dist/parts/*.md file paths
-      - name: Find part files
-        id: parts
-        run: |
-          FILES=$(ls dist/parts/*.md | sort | jq -R -s -c 'split("\n")[:-1]')
-          echo "files=$FILES" >> "$GITHUB_OUTPUT"
-        shell: bash
-
-      # 4 ▸ push each part to Notion (first call deletes previous sync)
-      - name: Upload parts to Notion
+      # 3 ▸ push that markdown into Notion (no synced‑block wrapper)
+      - name: Push Markdown to Notion
         uses: tryfabric/markdown-to-notion@main
-        strategy:
-          matrix:
-            file: ${{ fromJson(steps.parts.outputs.files) }}
         with:
-          file: ${{ matrix.file }}
+          file: dist/rulebook.md
           notion_token: ${{ secrets.NOTION_TOKEN }}
           notion_id:    ${{ secrets.NOTION_PAGE_ID }}
-          delete_existing: ${{ matrix.file == fromJson(steps.parts.outputs.files)[0] }}
+          delete_existing: true
+          sync: false            # ← disables the 100‑child limit wrapper
