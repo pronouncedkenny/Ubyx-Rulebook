@@ -1,12 +1,14 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // scripts/build-rulebook.js
-// Builds the rulebook into multiple Markdown “parts” (each < 100 Notion blocks)
-// so we stay under the child‑limit.  The parts are written to  dist/parts/ .
+// 1. Concatenates every Markdown file in the repo in numeric‑then‑alpha order
+// 2. Flattens “bullet‑inside‑numbered” lists so Notion accepts them
+// 3. Splits the result into ≤ 80‑line “part” files (< 100 Notion blocks each)
+//    and writes them to  dist/parts/part‑N.md
 // ─────────────────────────────────────────────────────────────────────────────
 import { promises as fs } from 'fs';
 import { globSync } from 'glob';
 
-// numeric‑then‑alpha sort
+// numeric‑then‑alpha sort helper
 const sortByNumberThenAlpha = (a, b) => {
   const na = a.match(/^\d+/)?.[0] ?? '';
   const nb = b.match(/^\d+/)?.[0] ?? '';
@@ -21,7 +23,7 @@ const flattenMixedLists = md =>
     (_, p, ind) => `${p}\n${ind}– `
   );
 
-// gather & order repo Markdown files
+// gather Markdown files
 const files = globSync('**/*.md', {
   ignore: ['node_modules/**', 'dist/**', '.github/**', '**/README.md'],
 }).sort(sortByNumberThenAlpha);
@@ -46,21 +48,18 @@ for (const file of files) {
   chunks.push((await fs.readFile(file, 'utf8')).trim());
 }
 
-// front‑matter header with timestamp
+// simple header (no YAML front‑matter so it won’t appear in Notion)
 const iso = new Date().toISOString().slice(0, 19) + 'Z';
-const header = `---
-title: Ubyx Rulebook – Unofficial Living Build
-notion_page: https://www.notion.so/2360fffa3b398045958ad82bd626c4a8
----
+const header = `# Ubyx Rulebook – Unofficial Living Build
 
 An unofficial, perhaps more easily digestible, compilation of the Ubyx Rulebook, synced with each new commit (hopefully).
 
 _Last synced: ${iso}_`;
 
-const fullText = flattenMixedLists(`${header}\n${chunks.join('\n\n')}`);
+const full = flattenMixedLists(`${header}\n${chunks.join('\n\n')}`);
 
-// split into parts (≈ 80 blank lines each  ⇒  < 100 Notion blocks)
-const lines = fullText.split('\n');
+// split into parts ≈ 80 blank lines each (< 100 Notion blocks)
+const lines = full.split('\n');
 const parts = [];
 let buf = [];
 let blanks = 0;
