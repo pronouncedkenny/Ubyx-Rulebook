@@ -29,5 +29,5 @@ jobs:
         with:
           file: dist/rulebook.md
           notion_token: ${{ secrets.NOTION_TOKEN }}
-          notion_id:    ${{ secrets.NOTION_PAGE_ID }}
+          notion_id:    2360fffa3b398045958ad82bd626c4a8
           delete_existing: true
