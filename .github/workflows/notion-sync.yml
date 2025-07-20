@@ -5,7 +5,9 @@ on:
     branches: [ rulebook-sync ]
 
 jobs:
-  # ── 1 ▸ build the part files and upload them as an artifact ────────────────
+  # ────────────────────────────────────────────────────────────────────────────
+  # 1 ▸ Build the part files and upload them as an artifact
+  # ────────────────────────────────────────────────────────────────────────────
   build:
     runs-on: ubuntu-latest
     outputs:
@@ -13,8 +15,10 @@ jobs:
       first: ${{ steps.collect.outputs.first }}
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
-        with: { node-version: '18' }
+        with:
+          node-version: '18'
 
       - name: Build rulebook part files
         run: |
@@ -23,9 +27,9 @@ jobs:
 
       - id: collect
         run: |
-          FILES=$(ls dist/parts/*.md | sort)
-          echo "parts=$(echo "$FILES" | jq -R -s -c 'split("\n")[:-1]')" >> "$GITHUB_OUTPUT"
-          echo "first=$(echo "$FILES" | head -n 1)" >> "$GITHUB_OUTPUT"
+          FILES=$(ls dist/parts/*.md | sort | xargs -n1 basename)
+          echo "parts=$(echo "$FILES" | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          echo "first=$(echo "$FILES" | head -n1)" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Upload parts artifact
@@ -34,7 +38,9 @@ jobs:
           name: rulebook_parts
           path: dist/parts/*.md
 
-  # ── 2 ▸ download the artifact and upload each part to Notion ───────────────
+  # ────────────────────────────────────────────────────────────────────────────
+  # 2 ▸ Download the artifact and push each part to Notion
+  # ────────────────────────────────────────────────────────────────────────────
   publish:
     needs: build
     runs-on: ubuntu-latest
@@ -51,7 +57,7 @@ jobs:
       - name: Upload part to Notion
         uses: tryfabric/markdown-to-notion@main
         with:
-          file: ${{ matrix.file }}
+          file: dist/parts/${{ matrix.file }}
           notion_token: ${{ secrets.NOTION_TOKEN }}
           notion_id:    ${{ secrets.NOTION_PAGE_ID }}
           delete_existing: ${{ matrix.file == needs.build.outputs.first }}
