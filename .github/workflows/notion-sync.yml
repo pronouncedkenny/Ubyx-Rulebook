@@ -1,0 +1,32 @@
+name: Sync Rulebook to Notion
+
+on:
+  push:
+    branches: [ rulebook-sync ]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. check out your repo
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0           # get full history (optional)
+
+      # 2. set up Node and build the markdown file
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - run: |
+          npm ci                   # installs glob from package.json
+          node scripts/build-rulebook.js
+
+      # 3. push that markdown into Notion
+      - name: Push Markdown to Notion
+        uses: tryfabric/markdown-to-notion@v1
+        with:
+          file: dist/rulebook.md
+          notion_token: ${{ secrets.NOTION_TOKEN }}
+          notion_id: ${{ secrets.NOTION_PAGE_ID }}
+          delete_existing: true
