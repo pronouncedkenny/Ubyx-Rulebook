@@ -5,7 +5,7 @@ on:
     branches: [ rulebook-sync ]
 
 jobs:
-  # ── 1 ▸ build the part files and export their paths ─────────────────────────
+  # ── 1 ▸ build the part files and upload them as an artifact ────────────────
   build:
     runs-on: ubuntu-latest
     outputs:
@@ -13,8 +13,6 @@ jobs:
       first: ${{ steps.collect.outputs.first }}
     steps:
       - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-
       - uses: actions/setup-node@v4
         with: { node-version: '18' }
 
@@ -26,11 +24,17 @@ jobs:
       - id: collect
         run: |
           FILES=$(ls dist/parts/*.md | sort)
-          echo "parts=$(echo "$FILES" | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
-          echo "first=$(echo "$FILES" | head -n 1)" >> $GITHUB_OUTPUT
+          echo "parts=$(echo "$FILES" | jq -R -s -c 'split("\n")[:-1]')" >> "$GITHUB_OUTPUT"
+          echo "first=$(echo "$FILES" | head -n 1)" >> "$GITHUB_OUTPUT"
         shell: bash
 
-  # ── 2 ▸ upload each part (first call deletes old content) ──────────────────
+      - name: Upload parts artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rulebook_parts
+          path: dist/parts/*.md
+
+  # ── 2 ▸ download the artifact and upload each part to Notion ───────────────
   publish:
     needs: build
     runs-on: ubuntu-latest
@@ -38,8 +42,11 @@ jobs:
       matrix:
         file: ${{ fromJson(needs.build.outputs.parts) }}
     steps:
-      - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
+      - name: Download parts
+        uses: actions/download-artifact@v4
+        with:
+          name: rulebook_parts
+          path: dist/parts
 
       - name: Upload part to Notion
         uses: tryfabric/markdown-to-notion@main
