@@ -1,15 +1,13 @@
 name: Nightly PDF – Notion
 
 on:
-  # One‑time push trigger makes the workflow appear in Actions,
-  # then it continues via manual dispatch or nightly schedule.
+  # one‑time push trigger makes the workflow visible, then you can delete it
   push:
     branches: [ rulebook-sync ]
 
-  workflow_dispatch:        # Run button in the Actions tab
-
+  workflow_dispatch:        # manual Run button
   schedule:
-    - cron: '0 2 * * *'     # 02 UTC every night
+    - cron: '0 2 * * *'     # 02 UTC nightly
 
 jobs:
   sync:
@@ -22,16 +20,25 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        with: { fetch-depth: 0 }
 
       - name: Set up Node 18
         uses: actions/setup-node@v4
-        with:
-          node-version: '18'
+        with: { node-version: '18' }
 
       - name: Install Pandoc
         uses: pandoc/actions/setup@v1
+
+      # ────────────────────────────────────────────────────────────────
+      # NEW: minimal LaTeX so pdflatex exists for Pandoc
+      # (~150 MB download, <1 min on GitHub runner)
+      - name: Install LaTeX
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            texlive-latex-base texlive-latex-recommended \
+            texlive-fonts-recommended texlive-lang-english
+      # ────────────────────────────────────────────────────────────────
 
       - name: Install script dependencies
         run: npm install glob node-fetch @notionhq/client
