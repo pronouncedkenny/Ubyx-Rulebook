@@ -1,29 +1,32 @@
-name: Nightly PDF → Notion
+name: Nightly PDF – Notion
 
 on:
+  workflow_dispatch:        # run it manually from Actions tab
   schedule:
-    - cron: '0 2 * * *'          # 02:00 UTC every night
-  workflow_dispatch:             # let you trigger manually
+    - cron: '0 2 * * *'     # 02 UTC every night
 
 jobs:
   sync:
     runs-on: ubuntu-latest
     env:
-      GH_PAT:           ${{ secrets.GH_PAT }}          # personal‑access‑token with repo push
-      NOTION_TOKEN:     ${{ secrets.NOTION_TOKEN }}
-      NOTION_PAGE_ID:   ${{ secrets.NOTION_PAGE_ID }}
+      GH_PAT:         ${{ secrets.GH_PAT }}
+      NOTION_TOKEN:   ${{ secrets.NOTION_TOKEN }}
+      NOTION_PAGE_ID: ${{ secrets.NOTION_PAGE_ID }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
         with: { fetch-depth: 0 }
 
-      - uses: actions/setup-node@v4
+      - name: Set up Node 18
+        uses: actions/setup-node@v4
         with: { node-version: '18' }
 
-      - uses: pandoc/actions/setup@v1    # installs latest Pandoc
+      - name: Set up Pandoc
+        uses: pandoc/actions/setup@v1
 
-      - name: Install deps
+      - name: Install script deps
         run: npm install glob node-fetch @notionhq/client
 
-      - name: Build + push PDF + update Notion
+      - name: Build PDF and update Notion
         run: node scripts/nightly_pdf_sync.js
