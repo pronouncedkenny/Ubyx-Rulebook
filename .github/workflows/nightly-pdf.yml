@@ -1,13 +1,11 @@
 name: Nightly PDF – Notion
 
 on:
-  # one‑time push trigger makes the workflow visible, then you can delete it
   push:
     branches: [ rulebook-sync ]
-
-  workflow_dispatch:        # manual Run button
+  workflow_dispatch:
   schedule:
-    - cron: '0 2 * * *'     # 02 UTC nightly
+    - cron: '0 2 * * *'
 
 jobs:
   sync:
@@ -29,18 +27,19 @@ jobs:
       - name: Install Pandoc
         uses: pandoc/actions/setup@v1
 
-      # ────────────────────────────────────────────────────────────────
-      # NEW: minimal LaTeX so pdflatex exists for Pandoc
-      # (~150 MB download, <1 min on GitHub runner)
-      - name: Install LaTeX
+      # ── minimal LaTeX + Latin Modern fonts ────────────────────────────────
+      - name: Install LaTeX packages
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            texlive-latex-base texlive-latex-recommended \
-            texlive-fonts-recommended texlive-lang-english
-      # ────────────────────────────────────────────────────────────────
+            texlive-latex-base \
+            texlive-latex-recommended \
+            texlive-fonts-recommended \
+            texlive-fonts-extra \
+            lmodern
+      # ───────────────────────────────────────────────────────────────────────
 
-      - name: Install script dependencies
+      - name: Install script deps
         run: npm install glob node-fetch @notionhq/client
 
       - name: Build PDF and update Notion
