@@ -1,9 +1,9 @@
 // scripts/build-pdf.js
 // A simple script to generate a timestamped PDF from the 'rules' directory.
 
-import { execSync } from 'child_process';
-import { promises as fs } from 'fs';
-import path from 'path';
+const { execSync } = require('child_process');
+const fs = require('fs').promises;
+const path = require('path');
 
 /**
  * Main function to build the rulebook PDF.
