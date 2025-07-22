@@ -2,9 +2,9 @@ name: Build Rulebook PDF
 
 on:
   workflow_dispatch: # Allows manual triggering
-  push:
-    branches:
-      - 'nightly-build'
+  schedule:
+    - cron: '0 2 * * *'
+
 
 jobs:
   build:
