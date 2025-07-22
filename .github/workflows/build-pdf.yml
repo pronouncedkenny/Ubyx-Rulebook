@@ -1,0 +1,38 @@
+name: Build Rulebook PDF
+
+on:
+  workflow_dispatch: # Allows manual triggering
+  push:
+    branches:
+      - 'nightly-build'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Set up Pandoc
+        uses: pandoc/actions/setup@v1
+
+      - name: Install minimal LaTeX
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            texlive-latex-base texlive-latex-recommended \
+            texlive-fonts-recommended texlive-fonts-extra lmodern
+
+      - name: Build PDF
+        run: node scripts/build-pdf.js
+
+      - name: Upload PDF as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rulebook-pdf
+          path: dist/*.pdf
