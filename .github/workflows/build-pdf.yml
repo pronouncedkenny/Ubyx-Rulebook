@@ -31,8 +31,14 @@ jobs:
       - name: Build PDF
         run: node scripts/build-pdf.js
 
-      - name: Upload PDF as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: rulebook-pdf
-          path: dist/*.pdf
+      - name: Commit PDF to repository
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          mkdir -p nightly-builds
+          # Move the PDF to the nightly-builds folder with a consistent name
+          mv dist/*.pdf nightly-builds/Ubyx-Rulebook-Nightly.pdf
+          git add nightly-builds/Ubyx-Rulebook-Nightly.pdf
+          # Commit and push, but only if there are changes
+          git commit -m "docs(pdf): update nightly build" -a || echo "No changes to commit"
+          git push
