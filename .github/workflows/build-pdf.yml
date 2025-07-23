@@ -1,3 +1,4 @@
+# Workflow to build the Ubyx Rulebook PDF
 name: Build Rulebook PDF
 
 on:
